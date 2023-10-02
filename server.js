@@ -1,6 +1,8 @@
 const express = require('express');
 const path = require('path');
-const notesRouter = require('./notes');
+const fs = require('fs');
+const uuid = require('uuid');
+const { readFromFile, writeToFile, readAndAppend } = require('./fsUtils');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -9,15 +11,31 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Use notes router for all /notes routes
-app.use('/notes', notesRouter);
-
-// Serve static files from the public directory
+// Serve static files from public directory
 app.use(express.static('public'));
 
-// Serve the index.html file for all other routes
+// GET /notes returns the notes.html file
+app.get('/notes', (req, res) => {
+  res.sendFile(path.join(__dirname, '/public/notes.html'));
+});
+
+// GET /api/notes reads db.json and returns all saved notes as JSON
+app.get('/api/notes', (req, res) => {
+  readFromFile('./db.json').then((data) => res.json(JSON.parse(data)));
+});
+
+// POST /api/notes receives new note, adds to db.json, returns new note
+app.post('/api/notes', (req, res) => {
+  const { title, text } = req.body;
+  const newNote = { title, text, id: uuid.v4() };
+
+  readAndAppend(newNote, './db.json');
+  res.json(newNote);
+});
+
+// GET * returns index.html
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public/index.html'));
+  res.sendFile(path.join(__dirname, '/public/index.html'));
 });
 
 app.listen(PORT, () =>
