@@ -6,7 +6,7 @@ The Note Taker application aims to provide small business owners a seamless way 
 
 ## Screenshot
 
-![Note Taker Screenshot](./assets/images/screenshot.png)
+![Note Taker Screenshot](./assets/screenshot.png)
 
 ## User Story
 
